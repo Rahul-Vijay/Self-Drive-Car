@@ -51,3 +51,34 @@ class Network(nn.Module):
         # Get the q-values
         q_values = self.fc2(x)
         return q_values
+    
+ # Implement Experience Replay with a new class   
+class ReplayMemory(object):
+     
+     # Capacity is the number of state(s) with some experience
+     def __init__(self, capacity):
+         self.capacity = capacity
+         # List that contains some last 100 events
+         self.memory = []
+    
+    # This function pushes the events into the memory List
+     def push(self, event):
+         self.memory.append(event)
+         # If memory exceeds capacity then delete the oldest event
+         if len(self.memory) > self.capacity:
+             del self.memory[0]
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
