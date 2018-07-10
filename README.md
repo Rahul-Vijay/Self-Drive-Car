@@ -13,7 +13,7 @@
 2. Set up a virtual environment. Follow [here](https://virtualenv.pypa.io/en/stable/userguide/#usage) for more help
 3. Next activate the virtual env by -
 	* Linux/Mac - ``` source yourFolder/bin/activate ```
-4. Install the required modules listed in __requirements.txt__
+4. Install the required modules listed in __ai.py__
 5. Next get Kivy for your machine (follow link for instructions) -
 	* [Windows](https://kivy.org/docs/installation/installation-windows.html)
 	* [macOS/OSX](https://kivy.org/docs/installation/installation-osx.html)
