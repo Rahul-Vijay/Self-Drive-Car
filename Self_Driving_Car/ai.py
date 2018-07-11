@@ -108,7 +108,7 @@ class Dqn():
         td_loss = F.smooth_l1_loss(outputs, target)
         # To backpropagate and also apply stochastic gradient descent
         self.optimizer.zero_grad()
-        td_loss.backward(retain_variables = True)
+        td_loss.backward()
         # Update the weights
         self.optimizer.step()
         
@@ -119,9 +119,9 @@ class Dqn():
         # update the memory 
         self.memory.push((self.last_state, new_state, torch.LongTensor([int(self.last_action)]), torch.Tensor([self.last_reward])))
         # play an action
-        action=  self.select_action(new_state)
+        action = self.select_action(new_state)
         if len(self.memory.memory) > 100:
-            batch_state, batch_next_state, batch_reward, batch_action = self.memory.sample(100)
+            batch_state, batch_next_state, batch_action, batch_reward = self.memory.sample(100)
             self.learn(batch_state, batch_next_state, batch_reward, batch_action)
         self.last_action = action
         self.last_state = new_state
