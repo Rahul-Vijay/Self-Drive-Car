@@ -41,7 +41,7 @@ class Network(nn.Module):
         self.fc1 = nn.Linear(input_size, 30)
         
         # Connection from hidden layer to output layer
-        self.fc2 = nn.linear(30, nb_action)
+        self.fc2 = nn.Linear(30, nb_action)
         
     # Function that performs forward propagation
     def forward(self, state):
@@ -93,14 +93,14 @@ class Dqn():
         self.last_reward = 0
         
     def select_action(self, state):
-        probs = F.softmax(self.model(Variable(state, volatile = True))*7) # temp = 7
+        probs = F.softmax(self.model(Variable(state, volatile = True))*0) # temp = 0
         # Random draw of probs
-        action = probs.multinomial()
+        action = probs.multinomial(num_samples=1)
         return action.data[0,0]
         
     def learn(self, batch_state, batch_next_state, batch_reward, batch_action):
         # We want to get it tensors not in batch(s)
-        outputs = self.model(batch_state).gather(1, batch_action).unsqueeze(1).squeeze(1)
+        outputs = self.model(batch_state).gather(1, batch_action.unsqueeze(1)).squeeze(1)
         # Get the max q-values of the next state
         next_outputs = self.model(batch_next_state).detach().max(1)[0]
         target = self.gamma*next_outputs + batch_reward
@@ -117,7 +117,7 @@ class Dqn():
         # new state composed with the 3 signals 
         new_state = torch.Tensor(new_signal).float().unsqueeze(0)
         # update the memory 
-        self.memory.push((self.last_state, new_state, torch.LongTensor([int(self.last_action)])), torch.Tensor([self.last_reward]))
+        self.memory.push((self.last_state, new_state, torch.LongTensor([int(self.last_action)]), torch.Tensor([self.last_reward])))
         # play an action
         action=  self.select_action(new_state)
         if len(self.memory.memory) > 100:
