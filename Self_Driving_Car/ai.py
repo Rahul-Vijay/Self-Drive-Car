@@ -13,7 +13,7 @@ import os
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import torch.optit as optim
+import torch.optim as optim
    
 # From tensors to variables with gradients
 import torch.autograd as autograd
@@ -68,6 +68,7 @@ class ReplayMemory(object):
          if len(self.memory) > self.capacity:
              del self.memory[0]
              
+    # determing each batch size(s) 
      def sample(self, batch_size):
          samples = zip(*random.sample(self.memory, batch_size))
          return map(lambda x: Variable(torch.cat(x, 0)), samples)
@@ -82,7 +83,7 @@ class Dqn():
         self.model = Network(input_size, nb_action)
         # Create a new memory
         self.memory = ReplayMemory(100000)
-        # Get the Optimizer from pyTorch's adam class
+        # Get the Optimizer from PyTorch's adam class
         self.optimizer = optim.Adam(self.model.parameters(), lr = 0.001)
         # vector of 5 dimensios initialized as a tensor with also a fake dimension
         self.last_state = torch.Tensor(input_size).unsqueeze(0)
@@ -90,7 +91,28 @@ class Dqn():
         self.last_action = 0
         # last reward
         self.last_reward = 0
- 
+        
+    def select_action(self, state):
+        probs = F.softmax(self.model(Variable(state, volatile = True))*7) # temp = 7
+        # Random draw of probs
+        action = probs.multinomial()
+        return action.data[0,0]
+        
+    def learn(self, batch_state, batch_next_state, batch_reward, batch_action):
+        # We want to get it tensors not in batch(s)
+        outputs = self.model(batch_state).gather(1, batch_action).unsqueeze(1).squeeze(1)
+        # Get the max q-values of the next state
+        next_outputs = self.model(batch_next_state).detach().max(1)[0]
+        target = self.gamma*next_outputs + batch_reward
+        # Compute the loss
+        td_loss = F.smooth_l1_loss(outputs, target)
+        # To backpropagate and also apply stochastic gradient descent
+        self.optimizer.zero_grad()
+        td_loss.backward(retain_variables = True)
+        # Update the weights
+        self.optimizer.step()
+        
+
  
  
  
